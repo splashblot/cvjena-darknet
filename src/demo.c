@@ -24,6 +24,7 @@
 
 static char **demo_names;
 static image *demo_labels;
+static image probs_labels[99];
 static int demo_classes;
 
 
@@ -78,7 +79,7 @@ void *detect_in_thread(void *ptr)
     det = images[(demo_index + FRAMES/2 + 1)%FRAMES];
     demo_index = (demo_index + 1)%FRAMES;
 
-    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, demo_names, demo_labels, demo_classes);
+    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, probs_labels, demo_names, demo_labels, demo_classes);
 
     return 0;
 }
@@ -96,6 +97,12 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, int fram
 {
     //skip = frame_skip;
     int delay = frame_skip;
+    float i;
+    for(i = 0.01; i < 0.99; i+=0.01){
+        char buff[256];
+        sprintf(buff, "data/probs/%.2f.png", i);
+        probs_labels[(int)(i*100)] = load_image_color(buff, 0, 0);
+    }
 
     demo_names   = c_class_names;
     demo_labels  = img_class_labels;
