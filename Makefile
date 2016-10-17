@@ -7,6 +7,7 @@ DEBUG=0
 ARCH= --gpu-architecture=compute_20 --gpu-code=compute_20
 # more recent architectures on new graphic cards offer advanced compute capabilities
 # ARCH= --gpu-architecture=compute_52 --gpu-code=compute_52
+#For GTX 1080: ARCH= --gpu-architecture=compute_61 --gpu-code=compute_61
 
 VPATH=./src/
 EXEC=darknet
@@ -33,11 +34,11 @@ COMMON+= `pkg-config --cflags opencv`
 endif
 
 ifeq ($(GPU), 1) 
-# COMMON+= -DGPU -I/usr/local/cuda/include/
-COMMON+= -DGPU -I/home/freytag/lib/cuda6.0/include/
+COMMON+= -DGPU -I/usr/local/cuda/include/
+#COMMON+= -DGPU -I/home/freytag/lib/cuda6.0/include/
 CFLAGS+= -DGPU
-# LDFLAGS+= -L/usr/local/cuda/lib64 -lcuda -lcudart -lcublas -lcurand
-LDFLAGS+= -L/home/freytag/lib/cuda6.0/lib64 -lcuda -lcudart -lcublas -lcurand
+LDFLAGS+= -L/usr/local/cuda/lib64 -lcuda -lcudart -lcublas -lcurand
+# LDFLAGS+= -L/home/freytag/lib/cuda6.0/lib64 -lcuda -lcudart -lcublas -lcurand
 endif
 
 ifeq ($(CUDNN), 1) 
