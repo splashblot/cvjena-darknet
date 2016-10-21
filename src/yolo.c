@@ -459,9 +459,9 @@ void test_yolo(  char *cfgfile,
 
                 if ( b_draw_detections )
                 {
-                    fprintf(fout_box, "%s,%d,%d,%d,%d,%.2f,%s,%s\n", input, left, top, right-left, bot-top, prob, c_class_names[i_class], base64Ascii );
+                    fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d,%s\n", input, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top, prob, base64Ascii );
                 } else {
-                    fprintf(fout_box, "%s,%d,%d,%d,%d,%.2f,%s\n", input, left, top, right-left, bot-top, prob, c_class_names[i_class] );
+                    fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d\n", input, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top );
                 }
             }
             fclose(fout_box);
