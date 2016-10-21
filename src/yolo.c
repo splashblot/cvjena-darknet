@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "box.h"
 #include "demo.h"
+#include "base64.h"
 // functions to convert detections to useful formats
 #include "detection_conversion.h"
 // std includes
@@ -441,7 +442,27 @@ void test_yolo(  char *cfgfile,
                 if(top < 0) top = 0;
                 if(bot > im.h-1) bot = im.h-1;
 
-                fprintf(fout_box, "%s,%d,%d,%d,%d,%.2f,%s \n", input, left, top, right-left, bot-top, prob, c_class_names[i_class] );
+                FILE *fp_jpeg_version = fopen("predictions.jpg", "rb");
+                fseek(fp_jpeg_version, 0, SEEK_END);
+                long fsize = ftell(fp_jpeg_version);
+                fseek(fp_jpeg_version, 0, SEEK_SET);
+
+                char *encodeBuf = malloc(fsize + 1);
+                fread(encodeBuf, fsize, 1, fp_jpeg_version);
+                fclose(fp_jpeg_version);
+
+                encodeBuf[fsize] = 0;
+
+                char* base64Ascii;
+                int base64AsciiLen;
+                base64Ascii = base64(encodeBuf, (int)fsize, &base64AsciiLen);
+
+                if ( b_draw_detections )
+                {
+                    fprintf(fout_box, "%s,%d,%d,%d,%d,%.2f,%s,%s\n", input, left, top, right-left, bot-top, prob, c_class_names[i_class], base64Ascii );
+                } else {
+                    fprintf(fout_box, "%s,%d,%d,%d,%d,%.2f,%s\n", input, left, top, right-left, bot-top, prob, c_class_names[i_class] );
+                }
             }
             fclose(fout_box);
 
