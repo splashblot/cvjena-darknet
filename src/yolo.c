@@ -411,7 +411,9 @@ void test_yolo(  char *cfgfile,
             draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, probs_labels, c_class_names, img_class_labels, l.classes);
             /* show_image(im, "predictions"); */
             save_image(im, "predictions");
+#ifdef OPENCV
             save_image_jpg(im, "predictions");
+#endif
 
             /* show_image(sized, "resized"); */
         }
@@ -577,7 +579,9 @@ void test_yolo_on_filelist(  char *cfgfile,
             draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, probs_labels, c_class_names, img_class_labels, l.classes);
             /* show_image(im, "predictions"); */
             save_image(im, "predictions");
+#ifdef OPENCV
             save_image_jpg(im, "predictions");
+#endif
 
             /* show_image(sized, "resized"); */
         }

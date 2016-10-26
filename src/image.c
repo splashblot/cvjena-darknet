@@ -371,10 +371,11 @@ void show_image_cv(image p, const char *name)
     {
 #ifdef OPENCV
         /* show_image_cv(p, name); */
+        save_image(p, name);
+        save_image_jpg(p, name);
 #else
         fprintf(stderr, "Not compiled with OpenCV, saving to %s.png instead\n", name);
         save_image(p, name);
-        save_image_jpg(p, name);
 #endif
     }
 
@@ -593,6 +594,7 @@ void composite_3d(char *f1, char *f2, char *out)
         c.data[i] = a.data[i];
     }
 #ifdef OPENCV
+    save_image(c, out);
     save_image_jpg(c, out);
 #else
     save_image(c, out);
@@ -1224,7 +1226,9 @@ void show_images(image *ims, int n, char *window)
     normalize_image(m);
     image sized = resize_image(m, m.w, m.h);
     save_image(sized, window);
+#ifdef OPENCV
     save_image_jpg(sized, window);
+#endif
     /* show_image(sized, window); */
     free_image(sized);
     free_image(m);
