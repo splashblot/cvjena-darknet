@@ -20,6 +20,7 @@ extern "C" {
 char ** c_class_names;
 int i_num_cl;
 image *img_class_labels;
+image *prob_class_labels;
 
 }
 
@@ -79,7 +80,7 @@ void *detect_in_thread(void *ptr)
     printf("\033[1;1H");
     printf("\nFPS:%.0f\n",fps);
     printf("Objects:\n\n");
-    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, c_class_names, img_class_labels, i_num_cl);
+    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, prob_class_labels, c_class_names, img_class_labels, i_num_cl);
 
     if(MODE == 1)
     {

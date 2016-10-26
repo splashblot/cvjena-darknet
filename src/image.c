@@ -8,6 +8,11 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#ifdef OPENCV
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/imgproc/imgproc_c.h"
+#endif
+
 int windows = 0;
 
 float colors[6][3] = { {1,0,1}, {0,0,1},{0,1,1},{0,1,0},{1,1,0},{1,0,0} };
@@ -389,17 +394,6 @@ void show_image_cv(image p, const char *name)
         free(data);
         if(!success) fprintf(stderr, "Failed to write image %s\n", buff);
     }
-
-#ifdef OPENCV
-    image get_image_from_stream(CvCapture *cap)
-    {
-        IplImage* src = cvQueryFrame(cap);
-        if (!src) return make_empty_image(0,0,0);
-        image im = ipl_to_image(src);
-        rgbgr_image(im);
-        return im;
-    }
-#endif
 
 #ifdef OPENCV
     void save_image_jpg(image p, char *name)
@@ -1000,6 +994,14 @@ Mat image_to_Mat(image img, int w, int h, int depth, int c)
    return dst;
 }*/
 
+image get_image_from_stream(CvCapture *cap)
+{
+    IplImage* src = cvQueryFrame(cap);
+    if (!src) return make_empty_image(0,0,0);
+    image im = ipl_to_image(src);
+    rgbgr_image(im);
+    return im;
+}
 
 image load_image_cv(char *filename, int channels)
 {
