@@ -423,15 +423,38 @@ void test_yolo(  char *cfgfile,
         if ( b_write_detections )
         {
             FILE *fout_box    = fopen(c_dest, "a");
-            int ibox;
-            int numbox = l.side*l.side*l.n;
+            FILE *fp_input    = fopen(input, "rb");
+            int  ibox;
+            int  ibox_above_thresh_bool = 0;
+            int  numbox = l.side*l.side*l.n;
+            int  pred_base64AsciiLen;
+            char *pred_base64Ascii;
+            char *encodeBuf;
+            long fsize;
+            char *img_base64Ascii;
+            int  img_base64AsciiLen;
+
+            fseek(fp_input, 0, SEEK_END);
+            fsize = ftell(fp_input);
+            fseek(fp_input, 0, SEEK_SET);
+
+            encodeBuf = malloc(fsize + 1);
+            fread(encodeBuf, fsize, 1, fp_input);
+            fclose(fp_input);
+
+            encodeBuf[fsize] = 0;
+
+            img_base64Ascii = base64(encodeBuf, (int)fsize, &img_base64AsciiLen);
+            free(encodeBuf);
 
             for(ibox = 0; ibox < numbox; ++ibox)
             {
                 int i_class = max_index(probs[ibox], l.classes);
                 float prob = probs[ibox][i_class];
+
                 if ( prob < thresh )
                     continue;
+                ibox_above_thresh_bool = 1;
                 box b = boxes[ibox];
 
                 int left  = (b.x-b.w/2.)*im.w;
@@ -444,44 +467,25 @@ void test_yolo(  char *cfgfile,
                 if(top < 0) top = 0;
                 if(bot > im.h-1) bot = im.h-1;
 
-                FILE *fp_input = fopen(input, "rb");
                 FILE *fp_jpeg_version = fopen("predictions.jpg", "rb");
                 if (fp_jpeg_version == NULL)
                 {
                   printf("JPG is not readable!\n");
-                  fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d,unavailable,unavailable\n", input, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top );
+                  fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d,%s,unavailable\n", input, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top, img_base64Ascii );
                 }
                 else
                 {
                   fseek(fp_jpeg_version, 0, SEEK_END);
-                  long fsize = ftell(fp_jpeg_version);
+                  fsize = ftell(fp_jpeg_version);
                   fseek(fp_jpeg_version, 0, SEEK_SET);
 
-                  char *encodeBuf = malloc(fsize + 1);
+                  encodeBuf = malloc(fsize + 1);
                   fread(encodeBuf, fsize, 1, fp_jpeg_version);
                   fclose(fp_jpeg_version);
 
                   encodeBuf[fsize] = 0;
 
-                  char* pred_base64Ascii;
-                  int pred_base64AsciiLen;
                   pred_base64Ascii = base64(encodeBuf, (int)fsize, &pred_base64AsciiLen);
-
-                  free(encodeBuf);
-
-                  fseek(fp_input, 0, SEEK_END);
-                  fsize = ftell(fp_input);
-                  fseek(fp_input, 0, SEEK_SET);
-
-                  encodeBuf = malloc(fsize + 1);
-                  fread(encodeBuf, fsize, 1, fp_input);
-                  fclose(fp_input);
-
-                  encodeBuf[fsize] = 0;
-
-                  char* img_base64Ascii;
-                  int img_base64AsciiLen;
-                  img_base64Ascii = base64(encodeBuf, (int)fsize, &img_base64AsciiLen);
 
                   if ( b_draw_detections )
                   {
@@ -494,6 +498,10 @@ void test_yolo(  char *cfgfile,
 
                 }
             }
+
+            if ( ibox_above_thresh_bool == 0 )
+                fprintf(fout_box, "%s,0.0,none,n/a,n/a,0,0,0,0,%s,n/a\n", input, img_base64Ascii);
+
             fclose(fout_box);
 
             index++;
@@ -617,9 +625,31 @@ void test_yolo_on_filelist(  char *cfgfile,
         // save bounding boxes to separate text file
         if ( b_write_detections )
         {
+            FILE *fp_input = fopen(c_filename, "rb");
             FILE *fout_box    = fopen(c_dest, "a");
-            int ibox;
-            int numbox = l.side*l.side*l.n;
+            int  ibox;
+            int  ibox_above_thresh_bool = 0;
+            int  numbox = l.side*l.side*l.n;
+            int  pred_base64AsciiLen;
+            char *pred_base64Ascii;
+            char *encodeBuf;
+            long fsize;
+            char *img_base64Ascii;
+            int  img_base64AsciiLen;
+
+            fseek(fp_input, 0, SEEK_END);
+            fsize = ftell(fp_input);
+            fseek(fp_input, 0, SEEK_SET);
+
+            encodeBuf = malloc(fsize + 1);
+            fread(encodeBuf, fsize, 1, fp_input);
+            fclose(fp_input);
+
+            encodeBuf[fsize] = 0;
+
+            img_base64Ascii = base64(encodeBuf, (int)fsize, &img_base64AsciiLen);
+            free(encodeBuf);
+
 
             for(ibox = 0; ibox < numbox; ++ibox)
             {
@@ -627,6 +657,7 @@ void test_yolo_on_filelist(  char *cfgfile,
                 float prob = probs[ibox][i_class];
                 if ( prob < thresh )
                     continue;
+                ibox_above_thresh_bool = 1;
                 box b = boxes[ibox];
 
                 int left  = (b.x-b.w/2.)*im.w;
@@ -639,44 +670,25 @@ void test_yolo_on_filelist(  char *cfgfile,
                 if(top < 0) top = 0;
                 if(bot > im.h-1) bot = im.h-1;
 
-                FILE *fp_input = fopen(c_filename, "rb");
                 FILE *fp_jpeg_version = fopen("predictions.jpg", "rb");
                 if (fp_jpeg_version == NULL)
                 {
                   printf("JPG is not readable!\n");
-                  fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d,unavailable,unavailable\n", c_filename, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top );
+                  fprintf(fout_box, "%s,%.2f,%s,%s,%s,%d,%d,%d,%d,%s,unavailable\n", c_filename, prob, c_class_names[i_class], cfgfile, weightfile, left, top, right-left, bot-top, img_base64Ascii );
                 }
                 else
                 {
                   fseek(fp_jpeg_version, 0, SEEK_END);
-                  long fsize = ftell(fp_jpeg_version);
+                  fsize = ftell(fp_jpeg_version);
                   fseek(fp_jpeg_version, 0, SEEK_SET);
 
-                  char *encodeBuf = malloc(fsize + 1);
+                  encodeBuf = malloc(fsize + 1);
                   fread(encodeBuf, fsize, 1, fp_jpeg_version);
                   fclose(fp_jpeg_version);
 
                   encodeBuf[fsize] = 0;
 
-                  char* pred_base64Ascii;
-                  int pred_base64AsciiLen;
                   pred_base64Ascii = base64(encodeBuf, (int)fsize, &pred_base64AsciiLen);
-
-                  free(encodeBuf);
-
-                  fseek(fp_input, 0, SEEK_END);
-                  fsize = ftell(fp_input);
-                  fseek(fp_input, 0, SEEK_SET);
-
-                  encodeBuf = malloc(fsize + 1);
-                  fread(encodeBuf, fsize, 1, fp_input);
-                  fclose(fp_input);
-
-                  encodeBuf[fsize] = 0;
-
-                  char* img_base64Ascii;
-                  int img_base64AsciiLen;
-                  img_base64Ascii = base64(encodeBuf, (int)fsize, &img_base64AsciiLen);
 
                   if ( b_draw_detections )
                   {
@@ -689,6 +701,10 @@ void test_yolo_on_filelist(  char *cfgfile,
 
                 }
             }
+
+            if ( ibox_above_thresh_bool == 0 )
+                fprintf(fout_box, "%s,0.0,none,n/a,n/a,0,0,0,0,%s,n/a\n", c_filename, img_base64Ascii);
+
             fclose(fout_box);
 
             index++;
