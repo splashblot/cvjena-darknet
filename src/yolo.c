@@ -500,7 +500,7 @@ void test_yolo(  char *cfgfile,
             }
 
             if ( ibox_above_thresh_bool == 0 )
-                fprintf(fout_box, "%s,0.0,none,n/a,n/a,0,0,0,0,%s,n/a\n", input, img_base64Ascii);
+                fprintf(fout_box, "%s,0.0,none,%s,%s,0,0,0,0,%s,n/a\n", input, cfgfile, weightfile, img_base64Ascii);
 
             fclose(fout_box);
 
@@ -703,7 +703,7 @@ void test_yolo_on_filelist(  char *cfgfile,
             }
 
             if ( ibox_above_thresh_bool == 0 )
-                fprintf(fout_box, "%s,0.0,none,n/a,n/a,0,0,0,0,%s,n/a\n", c_filename, img_base64Ascii);
+                fprintf(fout_box, "%s,0.0,none,%s,%s,0,0,0,0,%s,n/a\n", c_filename, cfgfile, weightfile, img_base64Ascii);
 
             fclose(fout_box);
 
