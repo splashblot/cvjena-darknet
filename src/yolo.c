@@ -852,7 +852,7 @@ void run_yolo(int argc, char **argv)
 
     // now do everything which is not needed for help
 
-    char * c_list_with_classnames = find_char_arg(argc, argv, "-c_classes", "./data/classnames_VOC.txt");
+    char * c_list_with_classnames = find_char_arg(argc, argv, "-c_list_with_classnames", "./data/classnames_VOC.txt");
 
     FILE * fp_classlist;
 
